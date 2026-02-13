@@ -893,31 +893,59 @@ function onOpen() {
 }
 
 function showSettingsSidebar() {
-  const html = HtmlService.createHtmlOutputFromFile('SettingsSidebar')
-    .setTitle('⚙️ 設定')
-    .setWidth(350);
-  SpreadsheetApp.getUi().showSidebar(html);
+  try {
+    Logger.log('showSettingsSidebar: 開始');
+    const html = HtmlService.createHtmlOutputFromFile('ui/SettingsSidebar')
+      .setTitle('⚙️ 設定')
+      .setWidth(350);
+    SpreadsheetApp.getUi().showSidebar(html);
+    Logger.log('showSettingsSidebar: 完了');
+  } catch (e) {
+    Logger.log('showSettingsSidebar エラー: ' + e.message + '\nStack: ' + e.stack);
+    SpreadsheetApp.getUi().alert('設定サイドバーの表示に失敗しました: ' + e.message);
+  }
 }
 
 function showDummyDataDialog() {
-  const html = HtmlService.createHtmlOutputFromFile('DummyDataDialog')
-    .setWidth(700)
-    .setHeight(600);
-  SpreadsheetApp.getUi().showModalDialog(html, '🎲 リアルなダミーデータ生成');
+  try {
+    Logger.log('showDummyDataDialog: 開始');
+    const html = HtmlService.createHtmlOutputFromFile('ui/dialogs/DummyDataDialog')
+      .setWidth(700)
+      .setHeight(600);
+    SpreadsheetApp.getUi().showModalDialog(html, '🎲 リアルなダミーデータ生成');
+    Logger.log('showDummyDataDialog: 完了');
+  } catch (e) {
+    Logger.log('showDummyDataDialog エラー: ' + e.message + '\nStack: ' + e.stack);
+    SpreadsheetApp.getUi().alert('ダミーデータダイアログの表示に失敗しました: ' + e.message);
+  }
 }
 
 function showReportDialog() {
-  const html = HtmlService.createHtmlOutputFromFile('MainSidebar')
-    .setWidth(650)
-    .setHeight(700);
-  SpreadsheetApp.getUi().showModalDialog(html, '📊 レポート生成');
+  try {
+    Logger.log('showReportDialog: 開始');
+    const html = HtmlService.createHtmlOutputFromFile('ui/MainSidebar')
+      .setWidth(650)
+      .setHeight(700);
+    SpreadsheetApp.getUi().showModalDialog(html, '📊 レポート生成');
+    Logger.log('showReportDialog: 完了');
+  } catch (e) {
+    Logger.log('showReportDialog エラー: ' + e.message + '\nStack: ' + e.stack);
+    SpreadsheetApp.getUi().alert('レポートダイアログの表示に失敗しました: ' + e.message);
+  }
 }
 
 function showHelpDialog() {
-  const html = HtmlService.createHtmlOutputFromFile('HelpDialog')
-    .setWidth(850)
-    .setHeight(650);
-  SpreadsheetApp.getUi().showModalDialog(html, '📚 使い方ガイド');
+  try {
+    Logger.log('showHelpDialog: 開始');
+    const html = HtmlService.createHtmlOutputFromFile('ui/dialogs/HelpDialog')
+      .setWidth(850)
+      .setHeight(650);
+    SpreadsheetApp.getUi().showModalDialog(html, '📚 使い方ガイド');
+    Logger.log('showHelpDialog: 完了');
+  } catch (e) {
+    Logger.log('showHelpDialog エラー: ' + e.message + '\nStack: ' + e.stack);
+    SpreadsheetApp.getUi().alert('ヘルプダイアログの表示に失敗しました: ' + e.message);
+  }
 }
 
 // ========================================
