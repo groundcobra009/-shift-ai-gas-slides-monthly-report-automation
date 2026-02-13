@@ -236,17 +236,40 @@ generateAIInsight()     // ビジネスインサイト生成
 testGeminiConnection()  // 接続テスト
 ```
 
-### ファイル構成
+### フォルダ構成
 ```
 gas-slides-monthly-report-automation/
-├── Code.gs                    # メインスクリプト
-├── AISidebar.html            # AI機能UI
-├── SettingsSidebar.html      # 設定UI
-├── MainSidebar.html          # レポート生成UI
-├── DummyDataDialog.html      # ダミーデータ生成UI
-├── HelpDialog.html           # ヘルプUI
-├── README.md                 # このファイル
-└── 要件定義書.md             # 詳細仕様書
+├── CLAUDE.md                          # AI開発ガイド
+├── README.md                          # このファイル
+├── .clasp.json                        # clasp設定
+├── .claspignore                       # clasp除外設定
+├── docs/                              # ドキュメント
+│   ├── seminar-overview.md              # セミナー資料
+│   ├── context.md                       # プロジェクトコンテキスト
+│   ├── requirements.md                  # 要件定義書
+│   ├── setup-guide.md                   # セットアップガイド
+│   └── new-features.md                  # 新機能README
+├── src/                               # GASソースコード
+│   ├── appsscript.json                  # GASマニフェスト
+│   ├── core/
+│   │   └── Code.gs                      # メインスクリプト
+│   └── ui/
+│       ├── AISidebar.html               # AI機能UI
+│       ├── MainSidebar.html             # レポート生成UI
+│       ├── SettingsSidebar.html         # 設定UI
+│       └── dialogs/
+│           ├── ConfigDialog.html
+│           ├── DummyDataDialog.html
+│           ├── HelpDialog.html
+│           ├── MainDialog.html
+│           ├── ReportDialog.html
+│           ├── SampleDataDialog.html
+│           ├── SettingsDialog.html
+│           ├── SetupDialog.html
+│           └── TriggerDialog.html
+└── data/                              # データファイル
+    ├── generate_realistic_data.py       # サンプルデータ生成
+    └── sales_data_2025.csv              # サンプルCSVデータ
 ```
 
 ## 🎯 使用例

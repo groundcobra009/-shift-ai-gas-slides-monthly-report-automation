@@ -1,0 +1,35 @@
+# clasp ignore file
+# Files and directories to ignore when pushing to Google Apps Script
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+README.md
+CLAUDE.md
+
+# Data files
+data/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Cursor AI
+.cursorindexingignore
+.specstory/
+cursor.rule
+
+# Claude
+.claude/
+
+# GitHub
+.github/
+
+# clasp config
+.claspignore
