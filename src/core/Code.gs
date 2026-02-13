@@ -2457,8 +2457,8 @@ function generateTextWithGemini(prompt, customPrompt = '') {
       };
     }
 
-    // Gemini 2.5 Flash を使用
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${config.geminiApiKey}`;
+    // Gemini 2.0 Flash を使用
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${config.geminiApiKey}`;
 
     // カスタムプロンプトがある場合はシステムプロンプトと組み合わせる
     const systemPrompt = customPrompt || `あなたは営業レポート分析の専門家です。以下のガイドラインに従ってください：
