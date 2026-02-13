@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #4285F4;
+      padding-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #4285F4;
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background-color: #4285F4;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #3367D6;
+    }
+    .btn-secondary {
+      background-color: #34A853;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #2D8E47;
+    }
+    .btn-cancel {
+      background-color: #ddd;
+      color: #333;
+    }
+    .btn-cancel:hover {
+      background-color: #ccc;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #4285F4;
+    }
+    .loading.show {
+      display: block;
+    }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4285F4;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .result {
+      display: none;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .result.show {
+      display: block;
+    }
+    .result.success {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .result.error {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .help-text {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px;
+    }
+    .quick-actions {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .quick-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      background-color: #f1f3f4;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .quick-btn:hover {
+      background-color: #e8eaed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📊 月次レポート生成</h2>
+
+    <div id="result" class="result"></div>
+
+    <div id="form">
+      <div class="form-group">
+        <label for="yearMonth">対象年月 (YYYY-MM)</label>
+        <input type="text" id="yearMonth" placeholder="2026-01" />
+        <div class="quick-actions">
+          <button class="quick-btn" onclick="setCurrentMonth()">今月</button>
+          <button class="quick-btn" onclick="setLastMonth()">先月</button>
+          <button class="quick-btn" onclick="setNextMonth()">来月</button>
+        </div>
+        <div class="help-text">例: 2026-01（2026年1月）</div>
+      </div>
+
+      <div class="form-group">
+        <label for="outputMode">出力モード</label>
+        <select id="outputMode">
+          <option value="CREATE_NEW">新規作成（CREATE_NEW）</option>
+          <option value="UPDATE_LATEST">最新を更新（UPDATE_LATEST）</option>
+        </select>
+        <div class="help-text">
+          新規作成: 毎回新しいスライドを作成します<br>
+          最新を更新: 前回作成したスライドを更新します
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-primary" onclick="generateReport()">生成開始</button>
+        <button class="btn-secondary" onclick="loadConfig()">設定から取得</button>
+        <button class="btn-cancel" onclick="google.script.host.close()">閉じる</button>
+      </div>
+    </div>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>レポートを生成しています...<br>少々お待ちください</p>
+    </div>
+  </div>
+
+  <script>
+    // ページ読み込み時に設定を取得
+    window.onload = function() {
+      loadConfig();
+    };
+
+    // 設定から値を取得
+    function loadConfig() {
+      google.script.run
+        .withSuccessHandler(function(config) {
+          document.getElementById('yearMonth').value = config.targetYearMonth || '';
+          document.getElementById('outputMode').value = config.outputMode || 'CREATE_NEW';
+        })
+        .withFailureHandler(function(error) {
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .getConfigForUI();
+    }
+
+    // レポート生成
+    function generateReport() {
+      const yearMonth = document.getElementById('yearMonth').value;
+      const outputMode = document.getElementById('outputMode').value;
+
+      // バリデーション
+      if (!yearMonth) {
+        showResult(false, '対象年月を入力してください');
+        return;
+      }
+
+      if (!/^\d{4}-\d{2}$/.test(yearMonth)) {
+        showResult(false, '対象年月の形式が不正です（YYYY-MM形式で入力してください）');
+        return;
+      }
+
+      // UI切り替え
+      document.getElementById('form').style.display = 'none';
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('result').classList.remove('show');
+
+      // GAS実行
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('form').style.display = 'block';
+
+          if (result.success) {
+            showResult(true, `✅ ${result.message}<br><br>` +
+              `スライドID: ${result.slideId}<br>` +
+              `<a href="${result.slideUrl}" target="_blank">スライドを開く</a>`
+            );
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('form').style.display = 'block';
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .runMonthlyReport(yearMonth, outputMode);
+    }
+
+    // 結果表示
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+
+    // クイックアクション: 今月
+    function setCurrentMonth() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      document.getElementById('yearMonth').value = `${year}-${month}`;
+    }
+
+    // クイックアクション: 先月
+    function setLastMonth() {
+      const now = new Date();
+      now.setMonth(now.getMonth() - 1);
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      document.getElementById('yearMonth').value = `${year}-${month}`;
+    }
+
+    // クイックアクション: 来月
+    function setNextMonth() {
+      const now = new Date();
+      now.setMonth(now.getMonth() + 1);
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      document.getElementById('yearMonth').value = `${year}-${month}`;
+    }
+  </script>
+</body>
+</html>

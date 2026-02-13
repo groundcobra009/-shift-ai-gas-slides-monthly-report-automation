@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 450px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #4285F4;
+      padding-bottom: 10px;
+    }
+    .info {
+      background-color: #e3f2fd;
+      border-left: 4px solid #2196F3;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    .info h3 {
+      margin-top: 0;
+      color: #1976D2;
+      font-size: 14px;
+    }
+    .info ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .info li {
+      margin: 5px 0;
+      font-size: 13px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    input:focus {
+      outline: none;
+      border-color: #4285F4;
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    }
+    .help-text {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background-color: #34A853;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #2D8E47;
+    }
+    .btn-cancel {
+      background-color: #ddd;
+      color: #333;
+    }
+    .btn-cancel:hover {
+      background-color: #ccc;
+    }
+    .result {
+      display: none;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .result.show {
+      display: block;
+    }
+    .result.success {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .result.error {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #4285F4;
+    }
+    .loading.show {
+      display: block;
+    }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4285F4;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🎲 サンプルデータ生成</h2>
+
+    <div class="info">
+      <h3>📋 生成されるデータ</h3>
+      <ul>
+        <li>KPI（合計売上、達成率など）</li>
+        <li>月次売上（過去12ヶ月分）</li>
+        <li>地域別売上（8地域）</li>
+        <li>カテゴリ別売上（5カテゴリ）</li>
+        <li>各シートにチャートも自動生成</li>
+      </ul>
+    </div>
+
+    <div id="result" class="result"></div>
+
+    <div id="form">
+      <div class="form-group">
+        <label for="yearMonth">対象年月 (YYYY-MM)</label>
+        <input type="text" id="yearMonth" placeholder="2026-01" />
+        <div class="help-text">この月を基準にサンプルデータを生成します</div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-primary" onclick="generateSampleData()">生成開始</button>
+        <button class="btn-cancel" onclick="google.script.host.close()">閉じる</button>
+      </div>
+    </div>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>サンプルデータを生成しています...<br>少々お待ちください</p>
+    </div>
+  </div>
+
+  <script>
+    // ページ読み込み時に設定を取得
+    window.onload = function() {
+      loadConfig();
+    };
+
+    // 設定から値を取得
+    function loadConfig() {
+      google.script.run
+        .withSuccessHandler(function(config) {
+          document.getElementById('yearMonth').value = config.targetYearMonth || '';
+        })
+        .withFailureHandler(function(error) {
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .getConfigForUI();
+    }
+
+    // サンプルデータ生成
+    function generateSampleData() {
+      const yearMonth = document.getElementById('yearMonth').value;
+
+      // バリデーション
+      if (!yearMonth) {
+        showResult(false, '対象年月を入力してください');
+        return;
+      }
+
+      if (!/^\d{4}-\d{2}$/.test(yearMonth)) {
+        showResult(false, '対象年月の形式が不正です（YYYY-MM形式で入力してください）');
+        return;
+      }
+
+      // UI切り替え
+      document.getElementById('form').style.display = 'none';
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('result').classList.remove('show');
+
+      // GAS実行
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('form').style.display = 'block';
+
+          if (result.success) {
+            showResult(true, '✅ ' + result.message + '<br><br>' +
+              'シートを確認してください:<br>' +
+              '・KPI<br>' +
+              '・MonthlySales<br>' +
+              '・RegionalSales<br>' +
+              '・CategorySales'
+            );
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('form').style.display = 'block';
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .generateSampleDataFromUI(yearMonth);
+    }
+
+    // 結果表示
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+  </script>
+</body>
+</html>

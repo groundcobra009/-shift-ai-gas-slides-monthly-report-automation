@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 24px;
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .content {
+      padding: 32px 24px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 14px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    input[type="text"]:focus, input[type="password"]:focus {
+      outline: none;
+      border-color: #0f9d58;
+      box-shadow: 0 0 0 3px rgba(15, 157, 88, 0.1);
+    }
+    .help-text {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(15, 157, 88, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(15, 157, 88, 0.5);
+    }
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #4b5563;
+    }
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+    .result {
+      display: none;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .result.show { display: block; }
+    .result.success {
+      background: #d1fae5;
+      border: 2px solid #6ee7b7;
+      color: #065f46;
+    }
+    .result.error {
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: #991b1b;
+    }
+    .warning-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #92400e;
+    }
+    .readonly {
+      background: #f3f4f6;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔧 詳細設定</h1>
+      <p>スクリプトプロパティに保存されます</p>
+    </div>
+
+    <div class="content">
+      <div id="result" class="result"></div>
+
+      <div class="form-group">
+        <label for="reportTitle">レポートタイトル</label>
+        <input type="text" id="reportTitle" placeholder="月次売上レポート" />
+      </div>
+
+      <div class="form-group">
+        <label for="slideTemplateId">スライドテンプレートID（読み取り専用）</label>
+        <input type="text" id="slideTemplateId" class="readonly" readonly />
+        <div class="help-text">初期セットアップで自動設定されます</div>
+      </div>
+
+      <div class="form-group">
+        <label for="outputFolderId">出力フォルダID（読み取り専用）</label>
+        <input type="text" id="outputFolderId" class="readonly" readonly />
+        <div class="help-text">初期セットアップで自動設定されます</div>
+      </div>
+
+      <div class="form-group">
+        <label for="geminiApiKey">Gemini APIキー（任意・機密情報）</label>
+        <input type="password" id="geminiApiKey" placeholder="AIxxxxxxxxxxxxxxxxxxxxxxx" />
+        <div class="help-text">
+          変更する場合のみ入力してください（空欄の場合は変更されません）<br>
+          取得方法: <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>現在のスライドID（読み取り専用）</label>
+        <input type="text" id="currentSlideId" class="readonly" readonly />
+        <div class="help-text">最後に生成したスライドのID（自動更新）</div>
+      </div>
+
+      <div class="warning-box">
+        ⚠️ 「リセット」ボタンを押すと、次回は新しいスライドが作成されます
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="saveSettings()">💾 保存</button>
+        <button class="btn btn-danger" onclick="resetSlideId()">🔄 リセット</button>
+        <button class="btn btn-secondary" onclick="google.script.host.close()">✕ 閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      loadSettings();
+    };
+
+    function loadSettings() {
+      google.script.run
+        .withSuccessHandler(function(config) {
+          document.getElementById('reportTitle').value = config.reportTitle || '';
+          document.getElementById('slideTemplateId').value = config.slideTemplateId || '（未設定）';
+          document.getElementById('outputFolderId').value = config.outputFolderId || '（未設定）';
+          document.getElementById('currentSlideId').value = config.currentSlideId || '（未設定）';
+
+          // APIキーはマスクされたものを表示（プレースホルダーとして）
+          if (config.geminiApiKeyMasked) {
+            document.getElementById('geminiApiKey').placeholder = config.geminiApiKeyMasked;
+          }
+        })
+        .withFailureHandler(function(error) {
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .getConfigForUI();
+    }
+
+    function saveSettings() {
+      const config = {
+        reportTitle: document.getElementById('reportTitle').value,
+        geminiApiKey: document.getElementById('geminiApiKey').value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showResult(true, '✅ ' + result.message);
+            // APIキー入力欄をクリア
+            document.getElementById('geminiApiKey').value = '';
+            // 設定を再読み込み
+            loadSettings();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .saveConfigFromUI(config);
+    }
+
+    function resetSlideId() {
+      if (!confirm('現在のスライドIDをリセットしますか?\n\n次回は新しいスライドが作成されます。')) {
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showResult(true, '✅ ' + result.message);
+            document.getElementById('currentSlideId').value = '（未設定）';
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .resetCurrentSlideId();
+    }
+
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+  </script>
+</body>
+</html>

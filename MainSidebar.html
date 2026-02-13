@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 0;
+      background: #f8f9fa;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      padding: 20px 16px;
+      text-align: center;
+    }
+    .header h2 {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+    .header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    .section {
+      background: white;
+      margin: 12px;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f9d58;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .period-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .period-btn {
+      padding: 10px;
+      border: 2px solid #c8e6c9;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .period-btn:hover {
+      border-color: #0f9d58;
+      background: #e8f5e9;
+    }
+    .period-btn.active {
+      border-color: #0f9d58;
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+    }
+    .period-btn .icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #c8e6c9;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #0f9d58;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .checkbox-item input {
+      margin-right: 8px;
+    }
+    .checkbox-item label {
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 157, 88, 0.4);
+    }
+    .btn-secondary {
+      background: #e8f5e9;
+      color: #0f9d58;
+    }
+    .btn-secondary:hover {
+      background: #c8e6c9;
+    }
+    .result {
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .result.show { display: block; }
+    .result.success {
+      background: #d1fae5;
+      border: 2px solid #6ee7b7;
+      color: #065f46;
+    }
+    .result.error {
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: #991b1b;
+    }
+    .result a {
+      color: #0284c7;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #0f9d58;
+    }
+    .loading.show { display: block; }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #0f9d58;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px;
+      border: 2px solid #c8e6c9;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 8px;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #0f9d58;
+    }
+    .current-slide-box {
+      background: #e0f2fe;
+      border-left: 4px solid #0284c7;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      color: #0c4a6e;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>📊 レポート生成</h2>
+    <p>期間を選択してレポートを作成・更新</p>
+  </div>
+
+  <div id="result" class="result"></div>
+  <div id="currentSlideInfo" class="current-slide-box" style="display:none; margin: 12px;"></div>
+
+  <!-- レポート生成 -->
+  <div class="section">
+    <div class="section-title">📅 期間選択</div>
+    <div class="period-buttons">
+      <button class="period-btn active" data-period="monthly" onclick="selectPeriod('monthly')">
+        <div class="icon">📆</div>
+        <div>月次</div>
+      </button>
+      <button class="period-btn" data-period="weekly" onclick="selectPeriod('weekly')">
+        <div class="icon">📅</div>
+        <div>週次</div>
+      </button>
+      <button class="period-btn" data-period="yearly" onclick="selectPeriod('yearly')">
+        <div class="icon">📊</div>
+        <div>年次</div>
+      </button>
+    </div>
+
+    <div id="periodSelector">
+      <!-- 月次選択 -->
+      <div id="monthlySelector" style="display: block;">
+        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #4b5563; font-size: 12px;">対象月</label>
+        <select id="monthlyYear" style="width: 48%; padding: 10px; border: 2px solid #c8e6c9; border-radius: 8px; font-size: 13px; margin-right: 4%;">
+          <option value="2025">2025年</option>
+          <option value="2024">2024年</option>
+        </select>
+        <select id="monthlyMonth" style="width: 48%; padding: 10px; border: 2px solid #c8e6c9; border-radius: 8px; font-size: 13px;">
+          <option value="1">1月</option>
+          <option value="2">2月</option>
+          <option value="3">3月</option>
+          <option value="4">4月</option>
+          <option value="5">5月</option>
+          <option value="6">6月</option>
+          <option value="7">7月</option>
+          <option value="8">8月</option>
+          <option value="9">9月</option>
+          <option value="10">10月</option>
+          <option value="11">11月</option>
+          <option value="12">12月</option>
+        </select>
+      </div>
+
+      <!-- 週次選択 -->
+      <div id="weeklySelector" style="display: none;">
+        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #4b5563; font-size: 12px;">対象週</label>
+        <select id="weeklyYear" style="width: 48%; padding: 10px; border: 2px solid #c8e6c9; border-radius: 8px; font-size: 13px; margin-right: 4%;">
+          <option value="2025">2025年</option>
+          <option value="2024">2024年</option>
+        </select>
+        <select id="weeklyWeek" style="width: 48%; padding: 10px; border: 2px solid #c8e6c9; border-radius: 8px; font-size: 13px;">
+          <!-- JavaScriptで動的生成 -->
+        </select>
+      </div>
+
+      <!-- 年次選択 -->
+      <div id="yearlySelector" style="display: none;">
+        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #4b5563; font-size: 12px;">対象年</label>
+        <select id="yearlyYear" style="width: 100%; padding: 10px; border: 2px solid #c8e6c9; border-radius: 8px; font-size: 13px;">
+          <option value="2025">2025年</option>
+          <option value="2024">2024年</option>
+          <option value="2023">2023年</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="checkbox-item" style="margin-top: 12px;">
+      <input type="checkbox" id="forceNew" />
+      <label for="forceNew">強制的に新規作成</label>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
+      <button class="btn btn-secondary" onclick="filterData()">
+        🔍 フィルタリング
+      </button>
+      <button class="btn btn-secondary" onclick="clearFilter()">
+        🔄 フィルター解除
+      </button>
+    </div>
+
+    <div id="previewArea" style="display: none; margin-top: 12px; padding: 12px; background: #f0f9ff; border-radius: 8px; border: 2px solid #0284c7;">
+      <div style="font-weight: 700; color: #0369a1; margin-bottom: 8px; font-size: 12px;">📋 フィルタリング結果プレビュー</div>
+      <div id="previewContent" style="font-size: 11px; color: #0c4a6e; line-height: 1.6;"></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="generateSlide()" style="margin-top: 12px;">
+      🚀 生成・更新
+    </button>
+  </div>
+
+  <!-- AI生成 -->
+  <div class="section">
+    <div class="section-title">🤖 AI生成</div>
+    <button class="btn btn-secondary" onclick="generateAI()">
+      💬 売上コメント生成
+    </button>
+    <textarea id="customPrompt" placeholder="カスタムプロンプト...">売上データを分析して、今月の傾向と重要なポイントを簡潔にまとめてください。数値を含めて、200文字程度で具体的に記述してください。</textarea>
+    <button class="btn btn-secondary" onclick="generateCustomAI()">
+      ✍️ カスタム生成
+    </button>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p style="font-size: 13px;">処理中...</p>
+  </div>
+
+  <script>
+    let selectedPeriod = 'monthly';
+    let availablePeriods = null;
+    let previewData = null;
+
+    window.onload = function() {
+      loadCurrentSlideInfo();
+      loadAvailablePeriods();
+    };
+
+    function loadAvailablePeriods() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            availablePeriods = result;
+            initializeSelectors();
+          } else {
+            // データがない場合はデフォルトで初期化
+            initializeDefaultSelectors();
+          }
+        })
+        .withFailureHandler(function(error) {
+          initializeDefaultSelectors();
+        })
+        .getAvailablePeriods();
+    }
+
+    function initializeSelectors() {
+      const today = new Date();
+
+      // 年次選択の初期化
+      const yearlyYear = document.getElementById('yearlyYear');
+      yearlyYear.innerHTML = '';
+      availablePeriods.years.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = `${year}年`;
+        yearlyYear.appendChild(option);
+      });
+      yearlyYear.value = today.getFullYear();
+
+      // 月次選択の初期化
+      const monthlyYear = document.getElementById('monthlyYear');
+      monthlyYear.innerHTML = '';
+      availablePeriods.years.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = `${year}年`;
+        monthlyYear.appendChild(option);
+      });
+      monthlyYear.value = today.getFullYear();
+
+      updateMonthOptions(today.getFullYear());
+      document.getElementById('monthlyMonth').value = today.getMonth() + 1;
+
+      // 週次選択の初期化（日付範囲表示）
+      const weeklyYear = document.getElementById('weeklyYear');
+      weeklyYear.innerHTML = '';
+      availablePeriods.years.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = `${year}年`;
+        weeklyYear.appendChild(option);
+      });
+      weeklyYear.value = today.getFullYear();
+
+      updateWeekOptions(today.getFullYear());
+
+      // 年変更イベントの設定
+      monthlyYear.addEventListener('change', function() {
+        updateMonthOptions(this.value);
+      });
+      weeklyYear.addEventListener('change', function() {
+        updateWeekOptions(this.value);
+      });
+    }
+
+    function updateMonthOptions(year) {
+      const monthSelect = document.getElementById('monthlyMonth');
+      const availableMonths = availablePeriods.yearMonths.filter(ym => ym.year == year);
+
+      monthSelect.innerHTML = '';
+      availableMonths.forEach(ym => {
+        const option = document.createElement('option');
+        option.value = ym.month;
+        option.textContent = `${ym.month}月`;
+        monthSelect.appendChild(option);
+      });
+    }
+
+    function updateWeekOptions(year) {
+      const weekSelect = document.getElementById('weeklyWeek');
+      const availableWeeks = availablePeriods.weeks.filter(w => w.year == year);
+
+      weekSelect.innerHTML = '';
+      availableWeeks.forEach(w => {
+        const option = document.createElement('option');
+        option.value = w.startDate;
+        option.textContent = w.label;
+        weekSelect.appendChild(option);
+      });
+    }
+
+    function initializeDefaultSelectors() {
+      const today = new Date();
+
+      // デフォルトの月次選択
+      document.getElementById('monthlyYear').value = today.getFullYear();
+      document.getElementById('monthlyMonth').value = today.getMonth() + 1;
+
+      // デフォルトの週次選択（第1週〜第52週）
+      const weekSelect = document.getElementById('weeklyWeek');
+      for (let i = 1; i <= 52; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `第${i}週`;
+        weekSelect.appendChild(option);
+      }
+      document.getElementById('weeklyYear').value = today.getFullYear();
+      const weekNum = Math.ceil((today - new Date(today.getFullYear(), 0, 1)) / (7 * 24 * 60 * 60 * 1000));
+      weekSelect.value = weekNum;
+
+      // デフォルトの年次選択
+      document.getElementById('yearlyYear').value = today.getFullYear();
+    }
+
+    function loadCurrentSlideInfo() {
+      google.script.run
+        .withSuccessHandler(function(config) {
+          if (config.currentSlideId) {
+            const info = document.getElementById('currentSlideInfo');
+            info.innerHTML = `📎 既存スライド: ${config.currentSlideId.substring(0, 15)}...<br>次回は同じスライドを更新します`;
+            info.style.display = 'block';
+          }
+        })
+        .getConfigForUI();
+    }
+
+    function selectPeriod(period) {
+      selectedPeriod = period;
+      document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`[data-period="${period}"]`).classList.add('active');
+
+      // 期間選択UIの切り替え
+      document.getElementById('monthlySelector').style.display = period === 'monthly' ? 'block' : 'none';
+      document.getElementById('weeklySelector').style.display = period === 'weekly' ? 'block' : 'none';
+      document.getElementById('yearlySelector').style.display = period === 'yearly' ? 'block' : 'none';
+    }
+
+    function filterData() {
+      let targetDate, periodLabel;
+
+      // 選択された期間に応じて日付を作成
+      if (selectedPeriod === 'monthly') {
+        const year = document.getElementById('monthlyYear').value;
+        const month = document.getElementById('monthlyMonth').value;
+        targetDate = `${year}-${String(month).padStart(2, '0')}-01`;
+        periodLabel = `${year}年${month}月`;
+      } else if (selectedPeriod === 'weekly') {
+        const year = document.getElementById('weeklyYear').value;
+        const weekValue = document.getElementById('weeklyWeek').value;
+
+        targetDate = weekValue;
+
+        const weekSelect = document.getElementById('weeklyWeek');
+        const selectedOption = weekSelect.options[weekSelect.selectedIndex];
+        periodLabel = `${year}年 ${selectedOption.textContent}`;
+      } else if (selectedPeriod === 'yearly') {
+        const year = document.getElementById('yearlyYear').value;
+        targetDate = `${year}-01-01`;
+        periodLabel = `${year}年`;
+      }
+
+      showLoading(`🔍 ${periodLabel} のデータをフィルタリング中...`);
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            previewData = result;
+            displayPreview(result, periodLabel);
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(handleError)
+        .previewReportData(selectedPeriod, targetDate);
+    }
+
+    function displayPreview(data, periodLabel) {
+      const previewArea = document.getElementById('previewArea');
+      const previewContent = document.getElementById('previewContent');
+
+      const growthRate = data.totalSalesChange || 0;
+      const sign = growthRate >= 0 ? '+' : '';
+      const growthText = sign + (growthRate * 100).toFixed(1) + '%';
+
+      // 成長率ラベルを期間タイプに応じて設定
+      let growthLabel = '成長率';
+      if (selectedPeriod === 'monthly') {
+        growthLabel = '前月比';
+      } else if (selectedPeriod === 'yearly') {
+        growthLabel = '前年比';
+      } else if (selectedPeriod === 'weekly') {
+        growthLabel = '前週比';
+      }
+
+      let html = `<strong>対象期間:</strong> ${periodLabel}<br><br>`;
+      html += `<strong>📊 合計売上:</strong> ${formatCurrency(data.totalSales)}<br><br>`;
+      html += `<strong>📈 ${growthLabel}:</strong> ${growthText}<br><br>`;
+      html += `<strong>🏆 トップ地域:</strong> ${data.topRegion} (${formatCurrency(data.topRegionSales)})<br><br>`;
+      html += `<strong>👤 トップ担当者:</strong> ${data.topPerson} (${formatCurrency(data.topPersonSales)})<br><br>`;
+      html += `<strong>💡 考察:</strong><br>${data.aiComment || 'なし'}`;
+
+      previewContent.innerHTML = html;
+      previewArea.style.display = 'block';
+      showResult(true, '✅ フィルタリング完了！プレビューを確認してスライドを生成してください。');
+    }
+
+    function formatCurrency(value) {
+      return `¥${Math.round(value).toLocaleString()}`;
+    }
+
+    function clearFilter() {
+      showLoading('🔄 フィルターを解除中...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            // プレビューエリアを非表示
+            document.getElementById('previewArea').style.display = 'none';
+            previewData = null;
+            showResult(true, '✅ フィルターを解除しました。全期間のデータに戻りました。');
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(handleError)
+        .clearDataFilter();
+    }
+
+    function generateSlide() {
+      const forceNew = document.getElementById('forceNew').checked;
+      let targetDate, periodLabel;
+
+      // 選択された期間に応じて日付を作成
+      if (selectedPeriod === 'monthly') {
+        const year = document.getElementById('monthlyYear').value;
+        const month = document.getElementById('monthlyMonth').value;
+        targetDate = `${year}-${String(month).padStart(2, '0')}-01`;
+        periodLabel = `${year}年${month}月`;
+      } else if (selectedPeriod === 'weekly') {
+        const year = document.getElementById('weeklyYear').value;
+        const weekValue = document.getElementById('weeklyWeek').value;
+
+        // weekValueがstartDateの文字列（yyyy-mm-dd）
+        targetDate = weekValue;
+
+        // ラベルは選択されたoption要素のテキストから取得
+        const weekSelect = document.getElementById('weeklyWeek');
+        const selectedOption = weekSelect.options[weekSelect.selectedIndex];
+        periodLabel = `${year}年 ${selectedOption.textContent}`;
+      } else if (selectedPeriod === 'yearly') {
+        const year = document.getElementById('yearlyYear').value;
+        targetDate = `${year}-01-01`;
+        periodLabel = `${year}年`;
+      }
+
+      showLoading(`📊 ${periodLabel} のレポートを作成中...`);
+
+      // プレビューデータがあればそのAIコメントを使用
+      const params = {
+        periodType: selectedPeriod,
+        targetDate: targetDate,
+        forceNew: forceNew
+      };
+
+      if (previewData) {
+        params.aiComment = previewData.aiComment;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            const msg = result.isNew
+              ? `✅ 新規作成完了<br><strong>${periodLabel}</strong><br><a href="${result.slideUrl}" target="_blank">スライドを開く</a>`
+              : `✅ 更新完了<br><strong>${periodLabel}</strong><br><a href="${result.slideUrl}" target="_blank">スライドを開く</a>`;
+            showResult(true, msg);
+            if (result.isNew) loadCurrentSlideInfo();
+
+            // プレビューデータをクリア
+            previewData = null;
+            document.getElementById('previewArea').style.display = 'none';
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(handleError)
+        .generateOrUpdateSlide(params);
+    }
+
+    function generateAI() {
+      showLoading();
+      google.script.run
+        .withSuccessHandler(handleAIResult)
+        .withFailureHandler(handleError)
+        .generateAIComment();
+    }
+
+    function generateCustomAI() {
+      const prompt = document.getElementById('customPrompt').value;
+      if (!prompt.trim()) {
+        showResult(false, 'プロンプトを入力してください');
+        return;
+      }
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(handleAIResult)
+        .withFailureHandler(handleError)
+        .generateCustomText(prompt);
+    }
+
+    function handleAIResult(result) {
+      hideLoading();
+      if (result.success) {
+        showResult(true, `<strong>✅ 生成完了</strong><br><br>${result.text}<br><br><button class="btn btn-secondary" onclick="copyText('${escapeHtml(result.text)}')">📋 コピー</button>`);
+      } else {
+        showResult(false, result.message);
+      }
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('コピーしました！');
+      });
+    }
+
+    function showLoading(message) {
+      const loadingDiv = document.getElementById('loading');
+      if (message) {
+        loadingDiv.querySelector('p').textContent = message;
+      } else {
+        loadingDiv.querySelector('p').textContent = '処理中...';
+      }
+      loadingDiv.classList.add('show');
+      document.getElementById('result').classList.remove('show');
+    }
+
+    function hideLoading() {
+      document.getElementById('loading').classList.remove('show');
+    }
+
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+
+    function handleError(error) {
+      hideLoading();
+      showResult(false, 'エラー: ' + error.message);
+    }
+
+    function formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n');
+    }
+  </script>
+</body>
+</html>

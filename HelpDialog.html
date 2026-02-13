@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 24px;
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .content {
+      padding: 32px 24px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .step {
+      background: #f8fafc;
+      border-left: 4px solid #0f9d58;
+      padding: 20px;
+      margin-bottom: 24px;
+      border-radius: 8px;
+    }
+    .step-number {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 32px;
+      font-weight: bold;
+      margin-right: 12px;
+      font-size: 16px;
+    }
+    .step-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+    .step-description {
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.8;
+      margin-left: 44px;
+    }
+    .step-description ul {
+      margin: 12px 0 0 20px;
+    }
+    .step-description li {
+      margin: 8px 0;
+    }
+    .step-description code {
+      background: #e2e8f0;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: 'Monaco', 'Courier New', monospace;
+    }
+    .feature-box {
+      background: #dbeafe;
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 20px 0;
+    }
+    .feature-box h3 {
+      color: #1e40af;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    .feature-box ul {
+      margin-left: 20px;
+      color: #1e40af;
+    }
+    .feature-box li {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+    .warning-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .warning-box strong {
+      color: #92400e;
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .warning-box p {
+      color: #92400e;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .tips-box {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .tips-box strong {
+      color: #065f46;
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .tips-box p {
+      color: #065f46;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+      background: #e5e7eb;
+      color: #4b5563;
+    }
+    .btn:hover {
+      background: #d1d5db;
+    }
+    .menu-icon {
+      font-size: 24px;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📚 使い方ガイド</h1>
+      <p>スライドレポート自動生成システム</p>
+    </div>
+
+    <div class="content">
+      <!-- ステップ1: 初期設定 -->
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">1</span>
+          ⚙️ 初期設定
+        </div>
+        <div class="step-description">
+          初回のみ実行します。スライドテンプレートと出力フォルダを自動作成します。
+          <ul>
+            <li>メニューから「<strong>📊 スライドレポート → ⚙️ 設定</strong>」を開く</li>
+            <li>サイドバーの「<strong>⚡ セットアップ実行</strong>」ボタンをクリック</li>
+            <li>テンプレートとフォルダが自動作成されます（スプレッドシートと同じ階層）</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ステップ2: ダミーデータ作成 -->
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">2</span>
+          🎲 ダミーデータ作成
+        </div>
+        <div class="step-description">
+          現実的な売上データを生成してインポートします。
+          <ul>
+            <li>ターミナルで <code>python3 generate_realistic_data.py</code> を実行</li>
+            <li>ダウンロードフォルダに <code>sales_data_2022-2025.csv</code> が作成されます</li>
+            <li>メニューから「<strong>📊 スライドレポート → 🎲 ダミーデータ生成</strong>」を開く</li>
+            <li>CSVファイルをアップロードまたは貼り付け</li>
+            <li>「<strong>🚀 インポート & 集計実行</strong>」をクリック</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="feature-box">
+        <h3>📊 自動作成される集計シート</h3>
+        <ul>
+          <li><strong>RawSalesData:</strong> 元データ（約40,000レコード）</li>
+          <li><strong>RegionalSales:</strong> 地域別売上（8地域 + グラフ）</li>
+          <li><strong>PersonSales:</strong> 担当者別売上（10名 + 件数・平均単価 + グラフ）</li>
+          <li><strong>ProductSales:</strong> 製品別売上（7製品 + 販売数・平均単価 + 円グラフ）</li>
+          <li><strong>CategorySales:</strong> カテゴリ別売上（5カテゴリ）</li>
+          <li><strong>MonthlySales:</strong> 月次売上推移 + 前月比 + 前月比率（折れ線グラフ）</li>
+        </ul>
+      </div>
+
+      <!-- ステップ3: レポート生成 -->
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">3</span>
+          📊 レポート生成
+        </div>
+        <div class="step-description">
+          スライドレポートを生成・更新します。
+          <ul>
+            <li>メニューから「<strong>📊 スライドレポート → 📊 レポート生成</strong>」を開く</li>
+            <li><strong>期間タイプ</strong>を選択（月次・週次・年次）</li>
+            <li><strong>対象期間</strong>を選択（例: 2025年1月）</li>
+            <li>「<strong>🚀 生成・更新</strong>」をクリック</li>
+            <li>初回は新規スライド作成、2回目以降は同じスライドを更新</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tips-box">
+        <strong>💡 ヒント: 強制的に新規作成</strong>
+        <p>
+          「強制的に新規作成」にチェックを入れると、既存スライドを更新せず、新しいスライドを作成します。
+          月次レポートや週次レポートを別々のスライドで管理したい場合に便利です。
+        </p>
+      </div>
+
+      <!-- データ更新について -->
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">4</span>
+          🔄 データ更新
+        </div>
+        <div class="step-description">
+          RawSalesDataを更新した場合の対応方法:
+          <ul>
+            <li><strong>自動更新:</strong> RawSalesDataに行を追加・編集すると、集計シートは自動で再計算されます（数式ベース）</li>
+            <li><strong>手動更新:</strong> 大幅な変更を行った場合は、「🎲 ダミーデータ生成」ダイアログの「<strong>🔄 集計シートを更新</strong>」ボタンをクリック</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <strong>⚠️ 重要な注意事項</strong>
+        <p>
+          • 集計シート（RegionalSales、PersonSales等）は数式で自動計算されるため、直接編集しないでください。<br>
+          • データを追加・変更する場合は、必ず「RawSalesData」シートを編集してください。<br>
+          • 新しいCSVをインポートすると、既存のRawSalesDataと集計シートは削除されます。
+        </p>
+      </div>
+
+      <!-- AI機能 -->
+      <div class="step">
+        <div class="step-title">
+          <span class="step-number">5</span>
+          🤖 AI機能（オプション）
+        </div>
+        <div class="step-description">
+          Gemini APIを使って売上コメントを自動生成できます。
+          <ul>
+            <li>「⚙️ 設定」サイドバーでGemini APIキーを入力</li>
+            <li>「📊 レポート生成」ダイアログの「<strong>💬 売上コメント生成</strong>」をクリック</li>
+            <li>生成されたテキストをコピーしてスライドに貼り付け</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="feature-box">
+        <h3>🎯 メニュー構成</h3>
+        <ul>
+          <li><span class="menu-icon">⚙️</span><strong>設定:</strong> 初期セットアップ、APIキー設定、スライドIDリセット</li>
+          <li><span class="menu-icon">🎲</span><strong>ダミーデータ生成:</strong> CSVインポート、集計シート更新</li>
+          <li><span class="menu-icon">📊</span><strong>レポート生成:</strong> スライド作成・更新、AI機能</li>
+          <li><span class="menu-icon">❓</span><strong>ヘルプ:</strong> このガイド</li>
+        </ul>
+      </div>
+
+      <button class="btn" onclick="google.script.host.close()">
+        ✕ 閉じる
+      </button>
+    </div>
+  </div>
+</body>
+</html>

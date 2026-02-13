@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 24px;
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .content {
+      padding: 32px 24px;
+    }
+    .info-box {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: #1e40af;
+      line-height: 1.6;
+    }
+    .info-box h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .info-box ul {
+      margin: 8px 0 0 20px;
+    }
+    .info-box li {
+      margin: 4px 0;
+    }
+    .btn {
+      width: 100%;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 12px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(15, 157, 88, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(15, 157, 88, 0.5);
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #4b5563;
+    }
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+    .result {
+      display: none;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .result.show { display: block; }
+    .result.success {
+      background: #d1fae5;
+      border: 2px solid #6ee7b7;
+      color: #065f46;
+    }
+    .result.error {
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: #991b1b;
+    }
+    .result a {
+      color: #0284c7;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .result a:hover {
+      text-decoration: underline;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .loading.show { display: block; }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0f9d58;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚙️ 初期セットアップ</h1>
+      <p>自動でテンプレートとフォルダを作成します</p>
+    </div>
+
+    <div class="content">
+      <div id="result" class="result"></div>
+
+      <div class="info-box">
+        <h3>📋 セットアップ内容</h3>
+        <p>このセットアップでは、以下を自動で作成します:</p>
+        <ul>
+          <li><strong>スライドテンプレート</strong>: スプレッドシートと同じフォルダに作成</li>
+          <li><strong>出力フォルダ</strong>: スプレッドシートと同じフォルダに「📁 レポート出力」フォルダを作成</li>
+        </ul>
+        <p style="margin-top: 12px;">すでに設定済みの場合は、既存のものを使用します。</p>
+      </div>
+
+      <div id="form">
+        <button class="btn btn-primary" onclick="runSetup()">
+          🚀 セットアップ開始
+        </button>
+        <button class="btn btn-secondary" onclick="google.script.host.close()">
+          ✕ 閉じる
+        </button>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div style="color: #0f9d58; font-weight: 600; font-size: 16px;">セットアップ中...</div>
+        <p style="color: #9ca3af; font-size: 13px; margin-top: 12px;">少々お待ちください</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // セットアップ実行
+    function runSetup() {
+      document.getElementById('form').style.display = 'none';
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('result').classList.remove('show');
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('form').style.display = 'block';
+
+          if (result.success) {
+            let message = `✅ ${result.message}<br><br>`;
+
+            if (result.results.templateCreated) {
+              message += `<strong>📊 スライドテンプレート（新規作成）:</strong><br>`;
+              message += `<a href="${result.results.templateUrl}" target="_blank">テンプレートを開く</a><br><br>`;
+            } else {
+              message += `<strong>📊 スライドテンプレート（既存）:</strong><br>`;
+              message += `<a href="${result.results.templateUrl}" target="_blank">テンプレートを開く</a><br><br>`;
+            }
+
+            if (result.results.folderCreated) {
+              message += `<strong>📁 出力フォルダ（新規作成）:</strong><br>`;
+              message += `<a href="${result.results.folderUrl}" target="_blank">フォルダを開く</a><br><br>`;
+            } else {
+              message += `<strong>📁 出力フォルダ（既存）:</strong><br>`;
+              message += `<a href="${result.results.folderUrl}" target="_blank">フォルダを開く</a><br><br>`;
+            }
+
+            message += `<br><strong>次のステップ:</strong><br>`;
+            message += `1. ダミーデータを生成<br>`;
+            message += `2. レポート生成サイドバーから生成開始！`;
+
+            showResult(true, message);
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('form').style.display = 'block';
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .setupInitialEnvironment();
+    }
+
+    // 結果表示
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+  </script>
+</body>
+</html>

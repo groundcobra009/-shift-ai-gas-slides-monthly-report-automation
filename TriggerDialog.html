@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #4285F4;
+      padding-bottom: 10px;
+    }
+    .info {
+      background-color: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    .info h3 {
+      margin-top: 0;
+      color: #856404;
+      font-size: 14px;
+    }
+    .info p {
+      margin: 5px 0;
+      font-size: 13px;
+      color: #856404;
+    }
+    .trigger-list {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+      min-height: 60px;
+    }
+    .trigger-list h3 {
+      margin-top: 0;
+      font-size: 14px;
+      color: #555;
+    }
+    .trigger-item {
+      background-color: white;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .trigger-item strong {
+      color: #4285F4;
+    }
+    .no-triggers {
+      color: #999;
+      font-style: italic;
+      text-align: center;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background-color: #34A853;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #2D8E47;
+    }
+    .btn-danger {
+      background-color: #EA4335;
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #D33426;
+    }
+    .btn-secondary {
+      background-color: #4285F4;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #3367D6;
+    }
+    .btn-cancel {
+      background-color: #ddd;
+      color: #333;
+    }
+    .btn-cancel:hover {
+      background-color: #ccc;
+    }
+    .result {
+      display: none;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .result.show {
+      display: block;
+    }
+    .result.success {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .result.error {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>⏰ トリガー設定</h2>
+
+    <div class="info">
+      <h3>ℹ️ 自動実行について</h3>
+      <p>
+        トリガーを設定すると、毎月1日の午前9時に自動でレポートが生成されます。<br>
+        実行時は、Configの「targetYearMonth」の値を使用します。
+      </p>
+    </div>
+
+    <div id="result" class="result"></div>
+
+    <div class="trigger-list">
+      <h3>現在のトリガー</h3>
+      <div id="triggerListContent">
+        <div class="no-triggers">トリガーを読み込み中...</div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-primary" onclick="createTrigger()">毎月1日に実行（作成）</button>
+      <button class="btn-secondary" onclick="refreshTriggers()">更新</button>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-danger" onclick="deleteTriggers()">すべて削除</button>
+      <button class="btn-cancel" onclick="google.script.host.close()">閉じる</button>
+    </div>
+  </div>
+
+  <script>
+    // ページ読み込み時にトリガー一覧を取得
+    window.onload = function() {
+      refreshTriggers();
+    };
+
+    // トリガー一覧を更新
+    function refreshTriggers() {
+      google.script.run
+        .withSuccessHandler(function(triggers) {
+          displayTriggers(triggers);
+        })
+        .withFailureHandler(function(error) {
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .getTriggers();
+    }
+
+    // トリガー一覧を表示
+    function displayTriggers(triggers) {
+      const container = document.getElementById('triggerListContent');
+
+      if (triggers.length === 0) {
+        container.innerHTML = '<div class="no-triggers">トリガーは設定されていません</div>';
+        return;
+      }
+
+      let html = '';
+      triggers.forEach(trigger => {
+        html += `<div class="trigger-item">
+          <strong>${trigger.handlerFunction}</strong><br>
+          <small>イベント: ${trigger.eventType}</small>
+        </div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // トリガーを作成
+    function createTrigger() {
+      if (!confirm('毎月1日の9時に自動実行するトリガーを作成しますか?\n\n既存の同名トリガーは削除されます。')) {
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showResult(true, '✅ ' + result.message);
+            refreshTriggers();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .createMonthlyTrigger();
+    }
+
+    // すべてのトリガーを削除
+    function deleteTriggers() {
+      if (!confirm('すべてのトリガーを削除しますか?\n\nこの操作は取り消せません。')) {
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showResult(true, '✅ ' + result.message);
+            refreshTriggers();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .deleteAllTriggers();
+    }
+
+    // 結果表示
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+  </script>
+</body>
+</html>

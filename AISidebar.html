@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 16px;
+      background: #f8f9fa;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      padding: 20px 16px;
+      margin: -16px -16px 20px -16px;
+      text-align: center;
+    }
+    .header h2 {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+    .header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f9d58;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .quick-btn {
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: all 0.3s;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quick-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 157, 88, 0.4);
+    }
+    .quick-btn .icon {
+      font-size: 16px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 2px solid #c8e6c9;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #0f9d58;
+      box-shadow: 0 0 0 3px rgba(15, 157, 88, 0.1);
+    }
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 157, 88, 0.4);
+    }
+    .btn-secondary {
+      background: #e8f5e9;
+      color: #0f9d58;
+      margin-top: 8px;
+    }
+    .btn-secondary:hover {
+      background: #c8e6c9;
+    }
+    .result {
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .result.show { display: block; }
+    .result.success {
+      background: #d1fae5;
+      border: 2px solid #6ee7b7;
+      color: #065f46;
+    }
+    .result.error {
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: #991b1b;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #0f9d58;
+    }
+    .loading.show { display: block; }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #0f9d58;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .info-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>🤖 Gemini AI</h2>
+    <p>レポート用のテキストを生成</p>
+  </div>
+
+  <div class="info-box">
+    💡 AIを使ってレポートのコメントやインサイトを自動生成できます。設定でAPIキーを登録してください。
+  </div>
+
+  <div class="section">
+    <div class="section-title">⚡ クイック生成（Gemini 2.5 Flash）</div>
+    <button class="quick-btn" onclick="generateQuickComment()">
+      <span class="icon">💬</span>
+      <span>売上サマリーコメントを生成</span>
+    </button>
+    <button class="quick-btn" onclick="generateQuickInsight()">
+      <span class="icon">💡</span>
+      <span>ビジネスインサイトを生成</span>
+    </button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">✍️ カスタム生成</div>
+    <textarea id="customPrompt" placeholder="プロンプトを入力してください...&#10;&#10;例: 「売上データから今月の傾向と来月の改善提案を200文字程度でまとめてください」"></textarea>
+    <button class="btn btn-primary" onclick="generateCustom()">🚀 生成</button>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>生成中...</p>
+  </div>
+
+  <div id="result" class="result"></div>
+
+  <script>
+    // クイック生成: コメント
+    function generateQuickComment() {
+      showLoading();
+      google.script.run
+        .withSuccessHandler(handleResult)
+        .withFailureHandler(handleError)
+        .generateAIComment();
+    }
+
+    // クイック生成: インサイト
+    function generateQuickInsight() {
+      showLoading();
+      google.script.run
+        .withSuccessHandler(handleResult)
+        .withFailureHandler(handleError)
+        .generateAIInsight();
+    }
+
+    // カスタム生成
+    function generateCustom() {
+      const prompt = document.getElementById('customPrompt').value;
+
+      if (!prompt.trim()) {
+        showResult(false, 'プロンプトを入力してください');
+        return;
+      }
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(handleResult)
+        .withFailureHandler(handleError)
+        .generateCustomText(prompt);
+    }
+
+    // 結果ハンドラー
+    function handleResult(result) {
+      hideLoading();
+
+      if (result.success) {
+        showResult(true, `<strong>✅ 生成完了</strong><br><br>${result.text}<br><br><button class="btn btn-secondary" onclick="copyToClipboard('${escapeHtml(result.text)}')">📋 コピー</button>`);
+      } else {
+        showResult(false, result.message);
+      }
+    }
+
+    // エラーハンドラー
+    function handleError(error) {
+      hideLoading();
+      showResult(false, 'エラー: ' + error.message);
+    }
+
+    // ローディング表示
+    function showLoading() {
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('result').classList.remove('show');
+    }
+
+    // ローディング非表示
+    function hideLoading() {
+      document.getElementById('loading').classList.remove('show');
+    }
+
+    // 結果表示
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+
+    // クリップボードにコピー
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(function() {
+        alert('コピーしました!');
+      });
+    }
+
+    // HTMLエスケープ
+    function escapeHtml(text) {
+      return text.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n');
+    }
+  </script>
+</body>
+</html>

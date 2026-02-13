@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 24px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .content {
+      padding: 32px 24px;
+    }
+    .info-box {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: #1e40af;
+      line-height: 1.6;
+    }
+    .info-box h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .info-box code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .warning-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #92400e;
+    }
+    .upload-area {
+      border: 3px dashed #10b981;
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      margin-bottom: 24px;
+      background: #f0fdf4;
+      transition: all 0.3s;
+    }
+    .upload-area:hover {
+      background: #dcfce7;
+      border-color: #059669;
+    }
+    .upload-area input[type="file"] {
+      display: none;
+    }
+    .upload-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      resize: vertical;
+      margin-bottom: 16px;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    .preview-box {
+      display: none;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .preview-box.show { display: block; }
+    .preview-box h3 {
+      font-size: 14px;
+      color: #10b981;
+      margin-bottom: 12px;
+    }
+    .preview-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      font-size: 13px;
+    }
+    .stat-item {
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #10b981;
+      margin-top: 4px;
+    }
+    .btn {
+      width: 100%;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 12px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #4b5563;
+    }
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+    .result {
+      display: none;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .result.show { display: block; }
+    .result.success {
+      background: #d1fae5;
+      border: 2px solid #6ee7b7;
+      color: #065f46;
+    }
+    .result.error {
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: #991b1b;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .loading.show { display: block; }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #10b981;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 ダミーデータ作成</h1>
+      <p>CSVファイルをインポートして集計シートを作成</p>
+    </div>
+
+    <div class="content">
+      <div id="result" class="result"></div>
+
+      <div class="info-box">
+        <h3>📋 データ生成方法</h3>
+        <p style="margin-bottom: 12px;">
+          現実的なダミーデータを生成するには、Pythonスクリプトを使用してください:
+        </p>
+        <p style="margin-bottom: 8px;">
+          <code>python generate_realistic_data.py</code>
+        </p>
+        <p>
+          このスクリプトは2025年1月〜12月の約10,000レコードを生成し、<br>
+          季節性、曜日効果、トレンド、担当者の特性を考慮した現実的なデータを作成します。
+        </p>
+      </div>
+
+      <div class="warning-box">
+        ⚠️ 既存の「RawSalesData」および集計シートは削除されます
+      </div>
+
+      <div id="uploadSection">
+        <div class="upload-area">
+          <div style="font-size: 48px; margin-bottom: 12px;">📁</div>
+          <p style="color: #10b981; font-weight: 600; margin-bottom: 8px;">
+            CSVファイルをドラッグ&ドロップ
+          </p>
+          <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
+            または
+          </p>
+          <label for="fileInput" class="upload-btn">
+            📂 ファイルを選択
+          </label>
+          <input type="file" id="fileInput" accept=".csv" onchange="handleFileSelect(event)" />
+        </div>
+
+        <p style="text-align: center; margin: 20px 0; color: #94a3b8; font-weight: 600;">
+          または
+        </p>
+
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #4b5563;">
+          CSVデータを直接貼り付け:
+        </label>
+        <textarea id="csvText" placeholder="Date,Region,Person,Product,Category,Quantity,UnitPrice,TotalSales,DayOfWeek,Month,Quarter
+2025-01-01,関東,田中太郎,製品A,サブスク,3,45000,135000,Wednesday,1,1
+..."></textarea>
+
+        <div id="previewBox" class="preview-box">
+          <h3>📊 データプレビュー</h3>
+          <div class="preview-stats">
+            <div class="stat-item">
+              <div class="stat-label">レコード数</div>
+              <div class="stat-value" id="recordCount">-</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">総売上</div>
+              <div class="stat-value" id="totalSales">-</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">期間開始</div>
+              <div class="stat-value" id="dateFrom" style="font-size: 14px;">-</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">期間終了</div>
+              <div class="stat-value" id="dateTo" style="font-size: 14px;">-</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="importBtn" onclick="importData()" disabled>
+          🚀 インポート & 集計実行
+        </button>
+
+        <div style="margin: 20px 0; padding: 16px; background: #f0f9ff; border-left: 4px solid #0284c7; border-radius: 8px;">
+          <p style="font-size: 13px; color: #0c4a6e; margin-bottom: 8px; font-weight: 600;">
+            📊 RawSalesDataを手動更新した場合
+          </p>
+          <p style="font-size: 12px; color: #075985; margin-bottom: 12px;">
+            スプレッドシート上でRawSalesDataを直接編集した場合、このボタンで集計シートを更新できます。
+          </p>
+          <button class="btn btn-secondary" onclick="refreshSheets()" style="background: #0284c7; color: white;">
+            🔄 集計シートを更新
+          </button>
+        </div>
+
+        <button class="btn btn-secondary" onclick="google.script.host.close()">
+          ✕ 閉じる
+        </button>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div style="color: #10b981; font-weight: 600; font-size: 16px;">
+          データをインポート中...
+        </div>
+        <p style="color: #9ca3af; font-size: 13px; margin-top: 12px;">
+          集計シートの作成とグラフの生成を行っています
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentCsvData = null;
+
+    // ファイル選択時の処理
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const csvText = e.target.result;
+        document.getElementById('csvText').value = csvText;
+        previewData(csvText);
+      };
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    // テキストエリアの変更を監視
+    document.getElementById('csvText').addEventListener('input', function(e) {
+      const csvText = e.target.value.trim();
+      if (csvText) {
+        previewData(csvText);
+      } else {
+        document.getElementById('previewBox').classList.remove('show');
+        document.getElementById('importBtn').disabled = true;
+      }
+    });
+
+    // データのプレビュー
+    function previewData(csvText) {
+      try {
+        const lines = csvText.trim().split('\n');
+        if (lines.length < 2) {
+          throw new Error('データが不足しています');
+        }
+
+        const header = lines[0];
+        const dataLines = lines.slice(1);
+
+        // 簡易的な統計計算
+        let totalSales = 0;
+        let minDate = null;
+        let maxDate = null;
+
+        dataLines.forEach(line => {
+          const cols = line.split(',');
+          if (cols.length >= 8) {
+            const date = cols[0];
+            const sales = parseInt(cols[7]) || 0;
+            totalSales += sales;
+
+            if (!minDate || date < minDate) minDate = date;
+            if (!maxDate || date > maxDate) maxDate = date;
+          }
+        });
+
+        // プレビュー表示
+        document.getElementById('recordCount').textContent = dataLines.length.toLocaleString();
+        document.getElementById('totalSales').textContent = '¥' + totalSales.toLocaleString();
+        document.getElementById('dateFrom').textContent = minDate || '-';
+        document.getElementById('dateTo').textContent = maxDate || '-';
+
+        document.getElementById('previewBox').classList.add('show');
+        document.getElementById('importBtn').disabled = false;
+
+        currentCsvData = csvText;
+      } catch (error) {
+        showResult(false, 'CSVのプレビュー作成に失敗: ' + error.message);
+        document.getElementById('previewBox').classList.remove('show');
+        document.getElementById('importBtn').disabled = true;
+      }
+    }
+
+    // データインポート実行
+    function importData() {
+      if (!currentCsvData) {
+        showResult(false, 'CSVデータが入力されていません');
+        return;
+      }
+
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('result').classList.remove('show');
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('uploadSection').style.display = 'block';
+
+          if (result.success) {
+            showResult(true, `✅ ${result.message}<br><br>以下のシートが作成されました:<br>・RawSalesData<br>・Region<br>・Person<br>・Product<br>・Category<br>・Monthly`);
+
+            // 入力をクリア
+            document.getElementById('csvText').value = '';
+            document.getElementById('previewBox').classList.remove('show');
+            document.getElementById('importBtn').disabled = true;
+            currentCsvData = null;
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('uploadSection').style.display = 'block';
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .importAndAggregateSalesData(currentCsvData);
+    }
+
+    // 集計シート更新
+    function refreshSheets() {
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('loading').querySelector('div:nth-child(2)').textContent = '集計シートを更新中...';
+      document.getElementById('result').classList.remove('show');
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('uploadSection').style.display = 'block';
+
+          if (result.success) {
+            showResult(true, `✅ ${result.message}<br><br>RawSalesDataの変更が集計シートに反映されました。`);
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('uploadSection').style.display = 'block';
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .refreshAggregationSheets();
+    }
+
+    // 結果表示
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+  </script>
+</body>
+</html>

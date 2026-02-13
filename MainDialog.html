@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 24px;
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    .content {
+      padding: 32px 24px;
+    }
+    .section {
+      margin-bottom: 28px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f9d58;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .period-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .period-btn {
+      padding: 16px;
+      border: 2px solid #c8e6c9;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4c4f69;
+    }
+    .period-btn:hover {
+      border-color: #0f9d58;
+      background: #e8f5e9;
+    }
+    .period-btn.active {
+      border-color: #0f9d58;
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+    }
+    .period-btn .icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .date-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #c8e6c9;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+    .date-input:focus {
+      outline: none;
+      border-color: #0f9d58;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .checkbox-group {
+      background: #f8f9fc;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      cursor: pointer;
+    }
+    .checkbox-item label {
+      cursor: pointer;
+      font-size: 14px;
+      color: #4c4f69;
+    }
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .btn {
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(15, 157, 88, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+    }
+    .btn-secondary {
+      background: white;
+      color: #0f9d58;
+      border: 2px solid #0f9d58;
+    }
+    .btn-secondary:hover {
+      background: #e8f5e9;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .result {
+      display: none;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      animation: slideDown 0.3s;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .result.show { display: block; }
+    .result.success {
+      background: #d1fae5;
+      border: 2px solid #6ee7b7;
+      color: #065f46;
+    }
+    .result.error {
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: #991b1b;
+    }
+    .result a {
+      color: #0284c7;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .result a:hover {
+      text-decoration: underline;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .loading.show { display: block; }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0f9d58;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      color: #0f9d58;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .info-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #92400e;
+    }
+    .current-slide-info {
+      background: #e0f2fe;
+      border-left: 4px solid #0284c7;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #0c4a6e;
+    }
+    .ai-section {
+      background: #f8f9fc;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .ai-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .btn-ai {
+      padding: 12px 16px;
+      border: 2px solid #0f9d58;
+      border-radius: 8px;
+      background: white;
+      color: #0f9d58;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-ai:hover {
+      background: #e8f5e9;
+      transform: translateY(-1px);
+    }
+    .btn-ai:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4c4f69;
+    }
+    .ai-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #c8e6c9;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      transition: all 0.3s;
+    }
+    .ai-textarea:focus {
+      outline: none;
+      border-color: #0f9d58;
+      box-shadow: 0 0 0 3px rgba(15, 157, 88, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 スライドレポート生成</h1>
+      <p>期間を選択してレポートを作成・更新できます</p>
+    </div>
+
+    <div class="content">
+      <div id="result" class="result"></div>
+      <div id="currentSlideInfo" class="current-slide-info" style="display:none;"></div>
+
+      <div id="form">
+        <div class="section">
+          <div class="section-title">📅 期間タイプ</div>
+          <div class="period-buttons">
+            <button class="period-btn active" data-period="monthly" onclick="selectPeriod('monthly')">
+              <div class="icon">📆</div>
+              <div>月次</div>
+            </button>
+            <button class="period-btn" data-period="weekly" onclick="selectPeriod('weekly')">
+              <div class="icon">📅</div>
+              <div>週次</div>
+            </button>
+            <button class="period-btn" data-period="yearly" onclick="selectPeriod('yearly')">
+              <div class="icon">📊</div>
+              <div>年次</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">📍 対象日</div>
+          <input type="date" id="targetDate" class="date-input" />
+        </div>
+
+        <div class="section">
+          <div class="section-title">🤖 AI生成</div>
+          <div class="ai-section">
+            <div class="ai-buttons">
+              <button class="btn-ai" onclick="generateSalesComment()">
+                <span>💬</span>
+                <span>売上コメント生成</span>
+              </button>
+              <button class="btn-ai" onclick="generateCustomComment()">
+                <span>✨</span>
+                <span>カスタム生成</span>
+              </button>
+            </div>
+            <div class="form-group">
+              <label for="aiComment">AIコメント（スライド1枚目用）</label>
+              <textarea id="aiComment" class="ai-textarea" rows="4" placeholder="売上データを分析して、今月の傾向と重要なポイントを簡潔にまとめてください。数値を含めて、200文字程度で具体的に記述してください。"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="aiInsight">AIインサイト（スライド4枚目用）</label>
+              <textarea id="aiInsight" class="ai-textarea" rows="6" placeholder="ビジネスインサイトと具体的なアクションプランを記述してください。"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">⚙️ オプション</div>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="forceNew" />
+              <label for="forceNew">強制的に新規作成する（既存スライドを上書きしない）</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="generateSlide()">
+            <span>🚀</span>
+            <span>生成・更新</span>
+          </button>
+          <button class="btn btn-secondary" onclick="google.script.host.close()">
+            <span>✕</span>
+            <span>閉じる</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">スライドを生成しています...</div>
+        <p style="color: #9ca3af; font-size: 13px; margin-top: 12px;">少々お待ちください</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedPeriod = 'monthly';
+
+    // ページ読み込み時
+    window.onload = function() {
+      // 今日の日付をセット
+      const today = new Date();
+      document.getElementById('targetDate').value = formatDate(today);
+
+      // 現在のスライド情報を取得
+      loadCurrentSlideInfo();
+      
+      // 対象日変更時に自動的にデータをプレビュー
+      document.getElementById('targetDate').addEventListener('change', previewData);
+      
+      // 初期プレビュー
+      previewData();
+    };
+    
+    // データプレビュー（期間選択時に自動実行）
+    function previewData() {
+      const targetDate = document.getElementById('targetDate').value;
+      if (!targetDate) return;
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success && result.data) {
+            // AIコメントとAIインサイトが自動生成されている場合は表示
+            if (result.data.aiComment) {
+              document.getElementById('aiComment').value = result.data.aiComment;
+            }
+            if (result.data.aiInsight) {
+              document.getElementById('aiInsight').value = result.data.aiInsight;
+            }
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.log('プレビューエラー: ' + error.message);
+        })
+        .previewReportData(selectedPeriod, targetDate);
+    }
+    
+    // 売上コメント生成
+    function generateSalesComment() {
+      const targetDate = document.getElementById('targetDate').value;
+      if (!targetDate) {
+        showResult(false, '対象日を選択してください');
+        return;
+      }
+      
+      const commentTextarea = document.getElementById('aiComment');
+      commentTextarea.disabled = true;
+      commentTextarea.value = 'AIコメントを生成中...';
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          commentTextarea.disabled = false;
+          if (result.success && result.text) {
+            commentTextarea.value = result.text;
+            showResult(true, 'AIコメントを生成しました');
+          } else {
+            commentTextarea.value = '';
+            showResult(false, result.message || 'AIコメントの生成に失敗しました');
+          }
+        })
+        .withFailureHandler(function(error) {
+          commentTextarea.disabled = false;
+          commentTextarea.value = '';
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .generateAIComment({
+          periodType: selectedPeriod,
+          targetDate: targetDate
+        });
+    }
+    
+    // カスタム生成（テキストエリアの内容をプロンプトとして使用）
+    function generateCustomComment() {
+      const targetDate = document.getElementById('targetDate').value;
+      const customPrompt = document.getElementById('aiComment').value;
+      
+      if (!targetDate) {
+        showResult(false, '対象日を選択してください');
+        return;
+      }
+      
+      if (!customPrompt || customPrompt.trim() === '') {
+        showResult(false, 'プロンプトを入力してください');
+        return;
+      }
+      
+      const commentTextarea = document.getElementById('aiComment');
+      commentTextarea.disabled = true;
+      const originalValue = commentTextarea.value;
+      commentTextarea.value = 'カスタムAIコメントを生成中...';
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          commentTextarea.disabled = false;
+          if (result.success && result.text) {
+            commentTextarea.value = result.text;
+            showResult(true, 'カスタムAIコメントを生成しました');
+          } else {
+            commentTextarea.value = originalValue;
+            showResult(false, result.message || 'カスタムAIコメントの生成に失敗しました');
+          }
+        })
+        .withFailureHandler(function(error) {
+          commentTextarea.disabled = false;
+          commentTextarea.value = originalValue;
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .generateTextWithGemini(customPrompt, '');
+    }
+
+    // 現在のスライド情報を取得
+    function loadCurrentSlideInfo() {
+      google.script.run
+        .withSuccessHandler(function(config) {
+          if (config.currentSlideId) {
+            const info = document.getElementById('currentSlideInfo');
+            info.innerHTML = `<strong>📎 既存スライド:</strong> ID: ${config.currentSlideId.substring(0, 20)}... <br>次回は同じスライドを更新します。`;
+            info.style.display = 'block';
+          }
+        })
+        .getConfigForUI();
+    }
+
+    // 期間選択
+    function selectPeriod(period) {
+      selectedPeriod = period;
+      document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`[data-period="${period}"]`).classList.add('active');
+      // 期間変更時に自動的にデータをプレビュー
+      previewData();
+    }
+
+    // スライド生成
+    function generateSlide() {
+      const targetDate = document.getElementById('targetDate').value;
+      const forceNew = document.getElementById('forceNew').checked;
+
+      if (!targetDate) {
+        showResult(false, '対象日を選択してください');
+        return;
+      }
+
+      // UI切り替え
+      document.getElementById('form').style.display = 'none';
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('result').classList.remove('show');
+
+      // GAS実行
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('form').style.display = 'block';
+
+          if (result.success) {
+            const message = result.isNew
+              ? `✅ ${result.message}<br><br>🔗 <a href="${result.slideUrl}" target="_blank">スライドを開く</a><br><small>ID: ${result.slideId}</small>`
+              : `✅ ${result.message}<br><br>🔗 <a href="${result.slideUrl}" target="_blank">スライドを開く</a>`;
+
+            showResult(true, message);
+
+            // 情報を更新
+            if (result.isNew) {
+              loadCurrentSlideInfo();
+            }
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('form').style.display = 'block';
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .generateOrUpdateSlide({
+          periodType: selectedPeriod,
+          targetDate: targetDate,
+          forceNew: forceNew,
+          aiComment: document.getElementById('aiComment').value,
+          aiInsight: document.getElementById('aiInsight').value
+        });
+    }
+
+    // 結果表示
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+
+    // 日付フォーマット
+    function formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+  </script>
+</body>
+</html>

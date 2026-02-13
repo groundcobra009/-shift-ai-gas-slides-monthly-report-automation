@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 0;
+      background: #f8f9fa;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      padding: 20px 16px;
+      text-align: center;
+    }
+    .header h2 {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+    .header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    .section {
+      background: white;
+      margin: 12px;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f9d58;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .info-box {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #1e40af;
+      line-height: 1.5;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 12px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+    input[type="text"]:focus, input[type="password"]:focus {
+      outline: none;
+      border-color: #0f9d58;
+      box-shadow: 0 0 0 3px rgba(15, 157, 88, 0.1);
+    }
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 13px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    select:focus {
+      outline: none;
+      border-color: #0f9d58;
+      box-shadow: 0 0 0 3px rgba(15, 157, 88, 0.1);
+    }
+    .help-text {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .readonly {
+      background: #f3f4f6;
+      cursor: not-allowed;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0f9d58 0%, #0b8043 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(15, 157, 88, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(15, 157, 88, 0.5);
+    }
+    .btn-secondary {
+      background: #e8f5e9;
+      color: #0f9d58;
+    }
+    .btn-secondary:hover {
+      background: #c8e6c9;
+    }
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    .result {
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .result.show { display: block; }
+    .result.success {
+      background: #d1fae5;
+      border: 2px solid #6ee7b7;
+      color: #065f46;
+    }
+    .result.error {
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: #991b1b;
+    }
+    .result a {
+      color: #0284c7;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 16px;
+      color: #0f9d58;
+    }
+    .loading.show { display: block; }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #0f9d58;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 8px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .divider {
+      height: 1px;
+      background: #e5e7eb;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>⚙️ 設定</h2>
+    <p>初期セットアップと詳細設定</p>
+  </div>
+
+  <div id="result" class="result"></div>
+
+  <!-- 初期セットアップ -->
+  <div class="section">
+    <div class="section-title">🚀 初期セットアップ</div>
+    <div class="info-box">
+      テンプレートスライドと出力フォルダを作成します。個別に作成することもできます。
+    </div>
+    <button class="btn btn-primary" onclick="runInitialSetup()">
+      ⚡ すべてセットアップ
+    </button>
+    <button class="btn btn-secondary" onclick="createTemplateOnly()">
+      📊 テンプレートのみ作成
+    </button>
+    <button class="btn btn-secondary" onclick="createFolderOnly()">
+      📁 出力フォルダのみ作成
+    </button>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 詳細設定 -->
+  <div class="section">
+    <div class="section-title">🔧 詳細設定</div>
+    <div class="info-box">
+      レポートタイトルは、月次/年次/週次に応じて自動的に生成されます（「月次売上レポート」「年次売上レポート」「週次売上レポート」）。
+    </div>
+
+    <div class="form-group">
+      <label for="geminiApiKey">Gemini APIキー（任意）</label>
+      <input type="password" id="geminiApiKey" placeholder="変更する場合のみ入力" />
+      <div class="help-text">
+        取得方法: <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a><br>
+        AIコメントとAIインサイトの自動生成に使用されます。
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" onclick="saveSettings()">
+      💾 設定を保存
+    </button>
+
+    <button class="btn btn-secondary" onclick="testGemini()">
+      🔌 Gemini接続テスト
+    </button>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- テンプレート管理 -->
+  <div class="section">
+    <div class="section-title">🎨 テンプレート管理</div>
+    <div class="info-box">
+      スライドテンプレートの作成・更新・削除・修正をUIから操作できます。
+    </div>
+    
+    <!-- テンプレート作成 -->
+    <div style="margin-bottom: 20px;">
+      <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #555;">📊 テンプレート作成</h4>
+      <button class="btn btn-primary" onclick="createTemplateOnly()" style="width: 100%;">
+        ✨ 新規テンプレートを作成
+      </button>
+      <div class="help-text">月次・年次・週次のテンプレートを新規作成します</div>
+    </div>
+
+    <!-- テンプレート更新 -->
+    <div style="margin-bottom: 20px;">
+      <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #555;">🔄 テンプレート更新</h4>
+      <button class="btn btn-secondary" onclick="updateTemplate()" style="width: 100%;">
+        🔄 既存テンプレートを更新
+      </button>
+      <div class="help-text">既存のテンプレートを最新版に更新します（既存テンプレートは削除されます）</div>
+    </div>
+
+    <!-- カラーテーマ変更 -->
+    <div style="margin-bottom: 20px;">
+      <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #555;">🎨 カラーテーマ変更</h4>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <select id="colorTheme" style="width: 100%;">
+          <option value="green">緑</option>
+          <option value="monochrome">モノトーン</option>
+          <option value="blue">青</option>
+          <option value="red">赤</option>
+        </select>
+      </div>
+      <button class="btn btn-secondary" onclick="changeColorTheme()" style="width: 100%;">
+        🎨 カラーテーマを変更
+      </button>
+      <div class="help-text">選択したテーマでテンプレートが再作成されます</div>
+    </div>
+
+    <!-- テンプレート修正 -->
+    <div style="margin-bottom: 20px;">
+      <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #555;">🔧 テンプレート修正</h4>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+        <button class="btn btn-secondary" onclick="fixTemplatesTitle()" style="flex: 1; min-width: 150px;">
+          📝 タイトルを{{reportTitle}}に統一
+        </button>
+        <button class="btn btn-secondary" onclick="fixTemplates()" style="flex: 1; min-width: 150px;">
+          🔧 {{period}}を削除
+        </button>
+      </div>
+      <div class="help-text">
+        <strong>推奨順序:</strong> ①「タイトルを{{reportTitle}}に統一」→ ②「{{period}}を削除」
+      </div>
+    </div>
+
+    <!-- テンプレート削除 -->
+    <div>
+      <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #555;">🗑️ テンプレート削除</h4>
+      <button class="btn btn-danger" onclick="deleteTemplates()" style="width: 100%;">
+        🗑️ すべてのテンプレートを削除
+      </button>
+      <div class="help-text">月次・年次・週次のすべてのテンプレートを削除します（削除後は再作成が必要です）</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="divider"></div>
+
+  <!-- 現在の設定情報 -->
+  <div class="section">
+    <div class="section-title">📋 現在の設定</div>
+
+    <div class="form-group">
+      <label>スライドテンプレートID</label>
+      <input type="text" id="slideTemplateId" class="readonly" readonly />
+    </div>
+
+    <div class="form-group">
+      <label>出力フォルダID</label>
+      <input type="text" id="outputFolderId" class="readonly" readonly />
+    </div>
+
+    <div class="form-group">
+      <label>現在のスライドID</label>
+      <input type="text" id="currentSlideId" class="readonly" readonly />
+      <div class="help-text">最後に生成したスライドのID</div>
+    </div>
+
+    <button class="btn btn-danger" onclick="resetSlideId()">
+      🔄 スライドIDをリセット
+    </button>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p style="font-size: 12px;">処理中...</p>
+  </div>
+
+  <script>
+    window.onload = function() {
+      loadCurrentConfig();
+    };
+
+    function loadCurrentConfig() {
+      google.script.run
+        .withSuccessHandler(function(config) {
+          document.getElementById('slideTemplateId').value = config.slideTemplateId || '（未設定）';
+          document.getElementById('outputFolderId').value = config.outputFolderId || '（未設定）';
+          document.getElementById('currentSlideId').value = config.currentSlideId || '（未設定）';
+          
+          // カラーテーマを設定
+          if (config.colorTheme) {
+            document.getElementById('colorTheme').value = config.colorTheme;
+          }
+
+          // APIキーはマスクされたものをプレースホルダーに表示
+          if (config.geminiApiKeyMasked) {
+            document.getElementById('geminiApiKey').placeholder = config.geminiApiKeyMasked;
+          }
+        })
+        .withFailureHandler(function(error) {
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .getConfigForUI();
+    }
+
+    function runInitialSetup() {
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            let message = `✅ ${result.message}<br><br>`;
+
+            if (result.results.templateCreated) {
+              message += `📊 テンプレート（新規作成）<br>`;
+            } else {
+              message += `📊 テンプレート（既存）<br>`;
+            }
+            message += `<a href="${result.results.templateUrl}" target="_blank">テンプレートを開く</a><br><br>`;
+
+            if (result.results.folderCreated) {
+              message += `📁 フォルダ（新規作成）<br>`;
+            } else {
+              message += `📁 フォルダ（既存）<br>`;
+            }
+            message += `<a href="${result.results.folderUrl}" target="_blank">フォルダを開く</a>`;
+
+            showResult(true, message);
+            loadCurrentConfig();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .setupInitialEnvironment();
+    }
+
+    function saveSettings() {
+      const config = {
+        geminiApiKey: document.getElementById('geminiApiKey').value
+      };
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            showResult(true, '✅ ' + result.message);
+            document.getElementById('geminiApiKey').value = '';
+            loadCurrentConfig();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .saveConfigFromUI(config);
+    }
+
+    function updateTemplate() {
+      if (!confirm('スライドテンプレートを最新版に更新しますか?\n\n既存のテンプレートは削除されます。')) {
+        return;
+      }
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            let message = `✅ ${result.message}<br><br>`;
+            message += `<a href="${result.templateUrl}" target="_blank">新しいテンプレートを開く</a>`;
+            showResult(true, message);
+            loadCurrentConfig();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .updateSlideTemplate();
+    }
+
+    function resetSlideId() {
+      if (!confirm('現在のスライドIDをリセットしますか?\n\n次回は新しいスライドが作成されます。')) {
+        return;
+      }
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            showResult(true, '✅ ' + result.message);
+            document.getElementById('currentSlideId').value = '（未設定）';
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .resetCurrentSlideId();
+    }
+
+    function createTemplateOnly() {
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            let message = `✅ ${result.message}<br><br>`;
+            message += `<a href="${result.templateUrl}" target="_blank">テンプレートを開く</a>`;
+            showResult(true, message);
+            loadCurrentConfig();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .createSlideTemplateOnly();
+    }
+
+    function createFolderOnly() {
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            let message = `✅ ${result.message}<br><br>`;
+            message += `<a href="${result.folderUrl}" target="_blank">フォルダを開く</a>`;
+            showResult(true, message);
+            loadCurrentConfig();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .createOutputFolderOnly();
+    }
+
+    function testGemini() {
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            let message = `✅ ${result.message}<br><br>`;
+            message += `<strong>レスポンス:</strong><br>${result.response}`;
+            showResult(true, message);
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .testGeminiConnection();
+    }
+
+    function changeColorTheme() {
+      const themeName = document.getElementById('colorTheme').value;
+      const themeNames = {
+        green: '緑',
+        monochrome: 'モノトーン',
+        blue: '青',
+        red: '赤'
+      };
+      
+      if (!confirm(`カラーテーマを「${themeNames[themeName]}」に変更しますか?\n\n既存のテンプレートは削除され、新しいテーマで再作成されます。`)) {
+        return;
+      }
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            let message = `✅ ${result.message}<br><br>`;
+            message += `<a href="${result.templateUrl}" target="_blank">新しいテンプレートを開く</a>`;
+            showResult(true, message);
+            loadCurrentConfig();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .changeTemplateColorTheme(themeName);
+    }
+
+    function fixTemplates() {
+      if (!confirm('テンプレートから{{period}}プレースホルダーを削除しますか?\n\nこの操作は元に戻せません。')) {
+        return;
+      }
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            showResult(true, result.message);
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .fixTemplatesRemovePeriodPlaceholder();
+    }
+
+    function fixTemplatesTitle() {
+      if (!confirm('テンプレートの表紙タイトルを{{reportTitle}}プレースホルダーに統一しますか?\n\n既存の「月次売上レポート」などの固定テキストが{{reportTitle}}に置き換えられます。')) {
+        return;
+      }
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            showResult(true, result.message);
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .fixTemplatesReportTitlePlaceholder();
+    }
+
+    function deleteTemplates() {
+      if (!confirm('すべてのテンプレートを削除しますか?\n\n月次・年次・週次のすべてのテンプレートが削除されます。\n削除後は「新規テンプレートを作成」ボタンで再作成してください。\n\nこの操作は元に戻せません。')) {
+        return;
+      }
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            showResult(true, result.message);
+            // 設定を再読み込み
+            loadCurrentConfig();
+          } else {
+            showResult(false, result.message);
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showResult(false, 'エラー: ' + error.message);
+        })
+        .deleteAllTemplates();
+    }
+
+    function showLoading() {
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('result').classList.remove('show');
+    }
+
+    function hideLoading() {
+      document.getElementById('loading').classList.remove('show');
+    }
+
+    function showResult(success, message) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = message;
+      resultDiv.className = 'result show ' + (success ? 'success' : 'error');
+    }
+  </script>
+</body>
+</html>
