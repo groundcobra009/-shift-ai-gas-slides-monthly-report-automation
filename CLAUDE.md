@@ -15,6 +15,10 @@ Gemini AI 連携によるコメント・インサイト自動生成機能付き�
 ├── README.md              # プロジェクト README
 ├── .clasp.json            # clasp 設定（スクリプトID、rootDir: src）
 ├── .claspignore           # clasp push 時の除外ファイル
+├── .github/               # GitHub Actions
+│   ├── SETUP_SECRETS.md     # Secrets セットアップガイド
+│   └── workflows/
+│       └── deploy-gas.yml   # clasp push 自動デプロイ
 ├── docs/                  # ドキュメント
 │   ├── seminar-overview.md  # セミナー資料
 │   ├── context.md           # プロジェクトコンテキスト
