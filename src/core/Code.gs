@@ -2457,8 +2457,8 @@ function generateTextWithGemini(prompt, customPrompt = '') {
       };
     }
 
-    // Gemini 2.0 Flash を使用
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${config.geminiApiKey}`;
+    // Gemini 2.0 Flash Lite を使用
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${config.geminiApiKey}`;
 
     // カスタムプロンプトがある場合はシステムプロンプトと組み合わせる
     const systemPrompt = customPrompt || `あなたは営業レポート分析の専門家です。以下のガイドラインに従ってください：
@@ -2631,7 +2631,7 @@ function testGeminiConnection() {
     if (result.success) {
       return {
         success: true,
-        message: 'Gemini 2.5 Flash との接続に成功しました！',
+        message: 'Gemini 2.0 Flash Lite との接続に成功しました！',
         response: result.text
       };
     } else {
